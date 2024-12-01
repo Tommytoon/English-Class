@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shaking Text Animation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes shakeText {
+            0%, 100% {
+                transform: translateY(0); /* เริ่มต้นที่ตำแหน่งปกติ */
+            }
+            50% {
+                transform: translateY(-5px); /* ขยับขึ้นเล็กน้อย */
+            }
+        }
+
+        .rotating-text {
+            font-size: 24px; /* ขนาดตัวอักษร */
+            font-weight: bold; /* ความหนาของตัวอักษร */
+            color: #ff4081; /* สีของตัวอักษร */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* เงา */
+            animation: shakeText 0.5s ease-in-out infinite; /* สั่นขึ้นลงแบบต่อเนื่อง */
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        #audioList {
+            display: none;
+            min-height: 220px;
+            margin-top: 20px;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            max-height: 300px;
+            padding: 10px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .audio-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            border: 1px solid #f0f0f0;
+            border-radius: 6px;
+            background: #f9f9f9;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .audio-item:hover {
+            background: #f1f5f9;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .audio-label {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .audio-controls {
+            flex-shrink: 0;
+        }
+
+        .checked {
+            color: green;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-purple-200">
+        <!-- ข้อความสั่น -->
+        <div class="rotating-text">สวัสดี พี่เอส พี่เอ็ม พี่แอ๊กซ์ ด้วยนะครับ</div>
+        <div class="rotating-text">Liverpool</div>
+        
+        <!-- ปุ่มสุ่มเสียง -->
+        <button id="randomButton" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-400 transition duration-300 ease-in-out">
+            Random เสียง!
+        </button>
+        
+        <!-- รายการเสียง -->
+        <div id="audioList"></div>
+    </div>
+
+    <script>
+        const audioFiles = [
+            '1.mp3',
+            '2.mp3',
+            '3.mp3',
+            '4.mp3',
+            '5.mp3',
+            '6.mp3',
+            '7.mp3',
+            '8.mp3',
+            '9.mp3',
+            '10.mp3'
+        ];
+
+        function getRandomAudios(fileList, count) {
+            const shuffled = [...fileList].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // ฟังก์ชันที่ใช้เมื่อเสียงเล่นเสร็จ
+        function onAudioEnded(audioElement, checkIcon) {
+            audioElement.addEventListener('ended', () => {
+                checkIcon.style.display = 'inline'; // แสดงติ๊กถูกเมื่อเล่นเสร็จ
+            });
+        }
+
+        // Random เสียง
+        document.getElementById('randomButton').addEventListener('click', () => {
+            const randomAudios = getRandomAudios(audioFiles, 8);
+            const audioListDiv = document.getElementById('audioList');
+
+            // แสดง #audioList
+            audioListDiv.style.display = 'flex';
+            audioListDiv.innerHTML = '';
+
+            randomAudios.forEach((audio, index) => {
+                const audioItem = document.createElement('div');
+                audioItem.className = 'audio-item';
+
+                const label = document.createElement('p');
+                label.textContent = `เสียงที่ ${index + 1}: ${audio}`;
+                label.className = 'audio-label';
+
+                const audioElement = document.createElement('audio');
+                audioElement.src = `sounds/${audio}`;
+                audioElement.controls = true;
+                audioElement.className = 'audio-controls';
+
+                const checkIcon = document.createElement('span');
+                checkIcon.innerHTML = '✔'; // ตัวติ๊กถูก
+                checkIcon.className = 'checked';
+                checkIcon.style.display = 'none'; // ซ่อนติ๊กถูกตอนแรก
+
+                // เพิ่ม check icon ไปที่ label
+                label.appendChild(checkIcon);
+
+                // เพิ่มเหตุการณ์เมื่อเสียงเล่นเสร็จ
+                onAudioEnded(audioElement, checkIcon);
+
+                audioItem.appendChild(label);
+                audioItem.appendChild(audioElement);
+
+                audioListDiv.appendChild(audioItem);
+            });
+        });
+    </script>
+</body>
+</html>
