@@ -48,14 +48,19 @@
     </style>
 </head>
 <body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-purple-200">
+    <div class="absolute left-5 top-5">
+        <button id="cameraButton" class="px-4 py-2 bg-green-500 text-white font-bold rounded-lg shadow hover:bg-green-400 transition">เปิดกล้อง</button>
+        <button id="recordButton" class="px-4 py-2 bg-red-500 text-white font-bold rounded-lg shadow hover:bg-red-400 transition mt-2" disabled>อัดวิดีโอ</button>
+    </div>
     <div class="rotating-text">สวัสดี พี่เอส พี่เอ็ม พี่แอ๊กซ์ ด้วยนะครับ</div>
     <div class="rotating-text">Liverpool</div>
-    <button id="randomButton" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-400 transition duration-300 ease-in-out">Random เสียง! (Phase 1)</button>
-    <button id="randomButton2" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-400 transition duration-300 ease-in-out mt-2">Random เสียง! (Phase 2)</button>
+    <button id="randomButton" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-400 transition">Random เสียง! (Phase 1)</button>
+    <button id="randomButton2" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-400 transition mt-2">Random เสียง! (Phase 2)</button>
     <div id="audioList"></div>
+    <video id="video" class="mt-4" width="320" height="240" autoplay></video>
     <script>
         const audioFiles = ['1.mp3', '2.mp3', '3.mp3', '4.mp3', '5.mp3', '6.mp3', '7.mp3', '8.mp3', '9.mp3', '10.mp3'];
-        const audioFiles2 = ['11.MP3', '12.MP3', '13.MP3', '14.MP3', '15.MP3', '16.MP3', '17.MP3', '18.MP3', '19.MP3', '20.MP3'];
+        const audioFiles2 = ['11.mp3', '12.mp3', '13.mp3', '14.mp3', '15.mp3', '16.mp3', '17.mp3', '18.mp3', '19.mp3', '20.mp3'];
 
         function getRandomAudios(fileList, count) {
             return [...fileList].sort(() => Math.random() - 0.5).slice(0, count);
@@ -99,6 +104,44 @@
 
         handleRandomClick('randomButton', audioFiles);
         handleRandomClick('randomButton2', audioFiles2);
+
+        const cameraButton = document.getElementById('cameraButton');
+        const recordButton = document.getElementById('recordButton');
+        const video = document.getElementById('video');
+        let mediaRecorder;
+        let chunks = [];
+
+        cameraButton.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                video.srcObject = stream;
+                recordButton.disabled = false;
+                
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = event => chunks.push(event.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'video/mp4' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'recorded-video.mp4';
+                    a.click();
+                    chunks = [];
+                };
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+            }
+        });
+
+        recordButton.addEventListener('click', () => {
+            if (mediaRecorder.state === 'inactive') {
+                mediaRecorder.start();
+                recordButton.textContent = 'หยุดอัดวิดีโอ';
+            } else {
+                mediaRecorder.stop();
+                recordButton.textContent = 'อัดวิดีโอ';
+            }
+        });
     </script>
 </body>
 </html>
