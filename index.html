@@ -7,24 +7,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes shakeText {
-            0%, 100% {
-                transform: translateY(0); /* เริ่มต้นที่ตำแหน่งปกติ */
-            }
-            50% {
-                transform: translateY(-5px); /* ขยับขึ้นเล็กน้อย */
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
-
         .rotating-text {
-            font-size: 24px; /* ขนาดตัวอักษร */
-            font-weight: bold; /* ความหนาของตัวอักษร */
-            color: #ff4081; /* สีของตัวอักษร */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* เงา */
-            animation: shakeText 0.5s ease-in-out infinite; /* สั่นขึ้นลงแบบต่อเนื่อง */
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff4081;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: shakeText 0.5s ease-in-out infinite;
             display: inline-block;
             margin-bottom: 20px;
         }
-
         #audioList {
             display: none;
             min-height: 220px;
@@ -39,7 +33,6 @@
             border-radius: 8px;
             border: 1px solid #ddd;
         }
-
         .audio-item {
             display: flex;
             align-items: center;
@@ -50,110 +43,62 @@
             background: #f9f9f9;
             transition: all 0.3s ease-in-out;
         }
-
-        .audio-item:hover {
-            background: #f1f5f9;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .audio-label {
-            flex: 1;
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .audio-controls {
-            flex-shrink: 0;
-        }
-
-        .checked {
-            color: green;
-            font-size: 16px;
-            margin-left: 10px;
-        }
+        .audio-item:hover { background: #f1f5f9; }
+        .checked { color: green; font-size: 16px; margin-left: 10px; display: none; }
     </style>
 </head>
-<body>
-    <div class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-purple-200">
-        <!-- ข้อความสั่น -->
-        <div class="rotating-text">สวัสดี พี่เอส พี่เอ็ม พี่แอ๊กซ์ ด้วยนะครับ</div>
-        <div class="rotating-text">Liverpool</div>
-        
-        <!-- ปุ่มสุ่มเสียง -->
-        <button id="randomButton" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-400 transition duration-300 ease-in-out">
-            Random เสียง!
-        </button>
-        
-        <!-- รายการเสียง -->
-        <div id="audioList"></div>
-    </div>
-
+<body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-purple-200">
+    <div class="rotating-text">สวัสดี พี่เอส พี่เอ็ม พี่แอ๊กซ์ ด้วยนะครับ</div>
+    <div class="rotating-text">Liverpool</div>
+    <button id="randomButton" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-400 transition duration-300 ease-in-out">Random เสียง! (Phase 1)</button>
+    <button id="randomButton2" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-400 transition duration-300 ease-in-out mt-2">Random เสียง! (Phase 2)</button>
+    <div id="audioList"></div>
     <script>
-        const audioFiles = [
-            '1.mp3',
-            '2.mp3',
-            '3.mp3',
-            '4.mp3',
-            '5.mp3',
-            '6.mp3',
-            '7.mp3',
-            '8.mp3',
-            '9.mp3',
-            '10.mp3'
-        ];
+        const audioFiles = ['1.mp3', '2.mp3', '3.mp3', '4.mp3', '5.mp3', '6.mp3', '7.mp3', '8.mp3', '9.mp3', '10.mp3'];
+        const audioFiles2 = ['11.mp3', '12.mp3', '13.mp3', '14.mp3', '15.mp3', '16.mp3', '17.mp3', '18.mp3', '19.mp3', '20.mp3'];
 
         function getRandomAudios(fileList, count) {
-            const shuffled = [...fileList].sort(() => 0.5 - Math.random());
-            return shuffled.slice(0, count);
+            return [...fileList].sort(() => Math.random() - 0.5).slice(0, count);
         }
 
-        // ฟังก์ชันที่ใช้เมื่อเสียงเล่นเสร็จ
-        function onAudioEnded(audioElement, checkIcon) {
-            audioElement.addEventListener('ended', () => {
-                checkIcon.style.display = 'inline'; // แสดงติ๊กถูกเมื่อเล่นเสร็จ
+        function createAudioItem(audio, index) {
+            const item = document.createElement('div');
+            item.className = 'audio-item';
+            
+            const label = document.createElement('p');
+            label.textContent = `เสียงที่ ${index + 1}: ${audio}`;
+            label.className = 'audio-label';
+            
+            const audioElement = document.createElement('audio');
+            audioElement.src = `sounds/${audio}`;
+            audioElement.controls = true;
+            audioElement.className = 'audio-controls';
+            
+            const checkIcon = document.createElement('span');
+            checkIcon.innerHTML = '✔';
+            checkIcon.className = 'checked';
+            
+            audioElement.addEventListener('ended', () => checkIcon.style.display = 'inline');
+            label.appendChild(checkIcon);
+            item.appendChild(label);
+            item.appendChild(audioElement);
+            
+            return item;
+        }
+
+        function handleRandomClick(buttonId, fileList) {
+            document.getElementById(buttonId).addEventListener('click', () => {
+                const audioListDiv = document.getElementById('audioList');
+                audioListDiv.style.display = 'flex';
+                audioListDiv.innerHTML = '';
+                getRandomAudios(fileList, 8).forEach((audio, index) => {
+                    audioListDiv.appendChild(createAudioItem(audio, index));
+                });
             });
         }
 
-        // Random เสียง
-        document.getElementById('randomButton').addEventListener('click', () => {
-            const randomAudios = getRandomAudios(audioFiles, 8);
-            const audioListDiv = document.getElementById('audioList');
-
-            // แสดง #audioList
-            audioListDiv.style.display = 'flex';
-            audioListDiv.innerHTML = '';
-
-            randomAudios.forEach((audio, index) => {
-                const audioItem = document.createElement('div');
-                audioItem.className = 'audio-item';
-
-                const label = document.createElement('p');
-                label.textContent = `เสียงที่ ${index + 1}: ${audio}`;
-                label.className = 'audio-label';
-
-                const audioElement = document.createElement('audio');
-                audioElement.src = `sounds/${audio}`;
-                audioElement.controls = true;
-                audioElement.className = 'audio-controls';
-
-                const checkIcon = document.createElement('span');
-                checkIcon.innerHTML = '✔'; // ตัวติ๊กถูก
-                checkIcon.className = 'checked';
-                checkIcon.style.display = 'none'; // ซ่อนติ๊กถูกตอนแรก
-
-                // เพิ่ม check icon ไปที่ label
-                label.appendChild(checkIcon);
-
-                // เพิ่มเหตุการณ์เมื่อเสียงเล่นเสร็จ
-                onAudioEnded(audioElement, checkIcon);
-
-                audioItem.appendChild(label);
-                audioItem.appendChild(audioElement);
-
-                audioListDiv.appendChild(audioItem);
-            });
-        });
+        handleRandomClick('randomButton', audioFiles);
+        handleRandomClick('randomButton2', audioFiles2);
     </script>
 </body>
 </html>
