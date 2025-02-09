@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shaking Text Animation</title>
+    <title>Shaking Text Animation & Audio Recorder</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes shakeText {
@@ -19,32 +19,6 @@
             display: inline-block;
             margin-bottom: 20px;
         }
-        #audioList {
-            display: none;
-            min-height: 220px;
-            margin-top: 20px;
-            flex-direction: column;
-            gap: 15px;
-            overflow-y: auto;
-            max-height: 300px;
-            padding: 10px;
-            background: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-        .audio-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 10px;
-            border: 1px solid #f0f0f0;
-            border-radius: 6px;
-            background: #f9f9f9;
-            transition: all 0.3s ease-in-out;
-        }
-        .audio-item:hover { background: #f1f5f9; }
-        .checked { color: green; font-size: 16px; margin-left: 10px; display: none; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-purple-200">
@@ -52,68 +26,21 @@
         <button id="cameraButton" class="px-4 py-2 bg-green-500 text-white font-bold rounded-lg shadow hover:bg-green-400 transition">เปิดกล้อง</button>
         <button id="recordButton" class="px-4 py-2 bg-red-500 text-white font-bold rounded-lg shadow hover:bg-red-400 transition mt-2" disabled>อัดวิดีโอ</button>
     </div>
-    <div class="rotating-text">สวัสดี พี่เอส พี่เอ็ม พี่แอ๊กซ์ ด้วยนะครับ</div>
-    <div class="rotating-text">Liverpool</div>
-    <button id="randomButton" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-400 transition">Random เสียง! (Phase 1)</button>
-    <button id="randomButton2" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-400 transition mt-2">Random เสียง! (Phase 2)</button>
-    <div id="audioList"></div>
+    <div class="rotating-text">สวัสดี พี่เอส พี่เอ็ม พี่แอ๊กซ์ ด้วยนะครับ v3</div>
     <video id="video" class="mt-4" width="320" height="240" autoplay></video>
     <script>
-        const audioFiles = ['1.mp3', '2.mp3', '3.mp3', '4.mp3', '5.mp3', '6.mp3', '7.mp3', '8.mp3', '9.mp3', '10.mp3'];
-        const audioFiles2 = ['11.mp3', '12.mp3', '13.mp3', '14.mp3', '15.mp3', '16.mp3', '17.mp3', '18.mp3', '19.mp3', '20.mp3'];
-
-        function getRandomAudios(fileList, count) {
-            return [...fileList].sort(() => Math.random() - 0.5).slice(0, count);
-        }
-
-        function createAudioItem(audio, index) {
-            const item = document.createElement('div');
-            item.className = 'audio-item';
-            
-            const label = document.createElement('p');
-            label.textContent = `เสียงที่ ${index + 1}: ${audio}`;
-            label.className = 'audio-label';
-            
-            const audioElement = document.createElement('audio');
-            audioElement.src = `sounds/${audio}`;
-            audioElement.controls = true;
-            audioElement.className = 'audio-controls';
-            
-            const checkIcon = document.createElement('span');
-            checkIcon.innerHTML = '✔';
-            checkIcon.className = 'checked';
-            
-            audioElement.addEventListener('ended', () => checkIcon.style.display = 'inline');
-            label.appendChild(checkIcon);
-            item.appendChild(label);
-            item.appendChild(audioElement);
-            
-            return item;
-        }
-
-        function handleRandomClick(buttonId, fileList) {
-            document.getElementById(buttonId).addEventListener('click', () => {
-                const audioListDiv = document.getElementById('audioList');
-                audioListDiv.style.display = 'flex';
-                audioListDiv.innerHTML = '';
-                getRandomAudios(fileList, 8).forEach((audio, index) => {
-                    audioListDiv.appendChild(createAudioItem(audio, index));
-                });
-            });
-        }
-
-        handleRandomClick('randomButton', audioFiles);
-        handleRandomClick('randomButton2', audioFiles2);
-
+        let mediaRecorder;
+        let chunks = [];
         const cameraButton = document.getElementById('cameraButton');
         const recordButton = document.getElementById('recordButton');
         const video = document.getElementById('video');
-        let mediaRecorder;
-        let chunks = [];
 
         cameraButton.addEventListener('click', async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: { echoCancellation: true, noiseSuppression: true }
+                });
                 video.srcObject = stream;
                 recordButton.disabled = false;
                 
@@ -129,7 +56,8 @@
                     chunks = [];
                 };
             } catch (error) {
-                console.error('Error accessing camera:', error);
+                console.error('Error accessing camera or microphone:', error);
+                alert('กรุณาอนุญาตให้ใช้กล้องและไมโครโฟน');
             }
         });
 
@@ -142,6 +70,11 @@
                 recordButton.textContent = 'อัดวิดีโอ';
             }
         });
+
+        // ขออนุญาตเข้าถึงไมโครโฟนทันทีเมื่อโหลดหน้าเว็บ
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => console.log('Microphone access granted'))
+            .catch(error => console.error('Microphone access denied:', error));
     </script>
 </body>
 </html>
