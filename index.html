@@ -51,6 +51,7 @@
     <div class="absolute left-5 top-5">
         <button id="cameraButton" class="px-4 py-2 bg-green-500 text-white font-bold rounded-lg shadow hover:bg-green-400 transition">เปิดกล้อง</button>
         <button id="recordButton" class="px-4 py-2 bg-red-500 text-white font-bold rounded-lg shadow hover:bg-red-400 transition mt-2" disabled>อัดวิดีโอ</button>
+        <button id="coffeeshop" class="px-4 py-2 bg-green-500 text-white font-bold rounded-lg shadow hover:bg-green-400 transition">ร้านกาแฟครูตูน</button>
     </div>
     <div class="rotating-text">สวัสดี พี่เอส พี่เอ็ม พี่แอ๊กซ์ ด้วยนะครับ</div>
     <div class="rotating-text">Liverpool</div>
@@ -142,6 +143,10 @@
                 recordButton.textContent = 'อัดวิดีโอ';
             }
         });
+        const coffeeshopButton = document.getElementById('coffeeshop');
+    coffeeshopButton.addEventListener('click', () => {
+        window.location.href = 'coffeeshop.html';
+    });
     </script>
 </body>
 </html>
