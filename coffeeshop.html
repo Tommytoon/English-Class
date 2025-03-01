@@ -34,9 +34,9 @@
         <label for="snack" class="block text-lg">เลือกของทานเล่น:</label>
         <select id="snack" class="w-full p-3 border rounded-md mb-4">
             <option value="None">ไม่มี - 0 ดอลลาร์</option>
-            <option value="แซนวิช">แซนวิช - 4 ดอลลาร์</option>
-            <option value="เค้กกล้วย">เค้กกล้วย - 3.5 ดอลลาร์</option>
-            <option value="สลัดทูน่า">สลัดทูน่า - 5 ดอลลาร์</option>
+            <option value="คุ๊กกี้คาราเมล">คุ๊กกี้คาราเมล - 3.5 ดอลลาร์</option>
+            <option value="ขนมปังปิ้งอะโวคาโด">ขนมปังปิ้งอะโวคาโด - 7 ดอลลาร์</option>
+            <option value="ขนมปังกระเทียม">ขนมปังกระเทียม - 2 ดอลลาร์</option>
         </select>
 
         <label class="block text-lg">เลือกวิธีรับกาแฟ:</label>
@@ -75,7 +75,7 @@
         function calculateTotal() {
             let coffeePrice = { "ลาเต้": 3, "คาปู": 3.5, "เอส": 2.5 };
             let sizePrice = { "ปกติ": 2, "ใหญ่": 5 };
-            let snackPrice = { "None": 0, "แซนวิช": 4, "เค้กกล้วย": 3.5, "สลัดทูน่า": 5 };
+            let snackPrice = { "None": 0, "คุ๊กกี้คาราเมล": 3.5, "ขนมปังปิ้งอะโวคาโด": 7, "ขนมปังกระเทียม": 2 };
 
             let coffee = document.getElementById("coffee").value;
             let size = document.getElementById("size").value;
@@ -86,17 +86,25 @@
         }
 
         function processPayment() {
+            console.log("Function processPayment is called.");
+
             let coffeePrice = { "ลาเต้": 3, "คาปู": 3.5, "เอส": 2.5 };
             let sizePrice = { "ปกติ": 2, "ใหญ่": 5 };
-            let snackPrice = { "None": 0, "แซนวิช": 4, "เค้กกล้วย": 3.5, "สลัดทูน่า": 5 };
+            let snackPrice = { "None": 0, "คุ๊กกี้คาราเมล": 3.5, "ขนมปังปิ้งอะโวคาโด": 7, "ขนมปังกระเทียม": 2 };
 
             let coffee = document.getElementById("coffee").value;
             let size = document.getElementById("size").value;
             let snack = document.getElementById("snack").value;
-            let orderType = document.querySelector('input[name="orderType"]:checked').value;
+            let orderType = document.querySelector('input[name="orderType"]:checked');
+
+            if (!orderType) {
+                alert("กรุณาเลือกวิธีรับกาแฟ");
+                return;
+            }
+            orderType = orderType.value;
 
             let total = coffeePrice[coffee] + sizePrice[size] + snackPrice[snack];
-            let orderDetails = `
+            let orderDetails = ` 
                 กาแฟ: ${coffee} - ${coffeePrice[coffee]} ดอลลาร์<br>
                 ขนาด: ${size} - ${sizePrice[size]} ดอลลาร์<br>
                 ของทานเล่น: ${snack} - ${snackPrice[snack]} ดอลลาร์<br>
